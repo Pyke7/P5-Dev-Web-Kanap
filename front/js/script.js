@@ -31,7 +31,6 @@ fetch("http://localhost:3000/api/products")
             descriptionProduct.textContent = product.description;
             descriptionProduct.classList.add("productDescription");
         }
-        return products;
     })
 
     .catch(function(error) {
