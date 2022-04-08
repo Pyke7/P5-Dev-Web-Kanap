@@ -2,6 +2,7 @@ async function main(){//fonction principale du script qui consiste à afficher l
     const productId = getProductId();
     const product = await getProduct(productId);
     hydrateDescription(product);
+    addToCart(product);
 }
 
 main();
@@ -33,10 +34,10 @@ function getProduct(productId) {   //permet de récupérer le produit en questio
 
 
 
-function hydrateDescription(product) {
-    console.log(product)  //permet d'hydrater le contenu de la page en fonction de l'id du produit
+
+
+function hydrateDescription(product) {  //permet d'hydrater le contenu de la page en fonction de l'id du produit
     let imgContainer = document.getElementsByClassName('item__img');
-    console.log(imgContainer)
     let img = document.createElement("img");
     imgContainer[0].appendChild(img);
     img.setAttribute('src', product.imageUrl);
@@ -52,7 +53,6 @@ function hydrateDescription(product) {
     description.innerText = product.description;
 
     for (let color of product.colors) {
-        console.log(color)
         let colors = document.getElementById('colors')
         let option = document.createElement('option');
         colors.appendChild(option);
@@ -60,3 +60,63 @@ function hydrateDescription(product) {
         option.innerText = color;
     }
 }
+
+
+
+// Ajout de l'évenement au clic du boutton "ajouter au panier"
+
+//fonction principale du script qui consiste à afficher les bonnes informations en fonction du produit cliqué sur la page d'accueil
+
+
+function addToCart(product) {
+    
+    const addToCartBtn = document.getElementById("addToCart");
+
+    addToCartBtn.addEventListener('click', function(e) {
+        let selection = document.getElementById("colors").value;
+        console.log(selection)
+
+        if(selection === ""){
+            alert("Veuillez séléctionner une couleur");
+            return;
+        }
+        let qty = parseInt(document.getElementById("quantity").value);
+        console.log(qty)
+
+        if(qty < 1 || qty > 100){
+            alert("Veuillez séléctionner une quantité entre 1 et 100");
+            return;
+        }
+        
+        const kanap = {
+        color: selection,
+        id: product._id,
+        qty,
+        };
+
+        let cart = JSON.parse(localStorage.getItem("cart"));
+
+        if (!cart || !cart.length) {
+            cart = [];
+            cart.push(kanap);
+            localStorage.setItem("cart", JSON.stringify(cart));
+        } else {
+            const match = cart.find((prd) => {
+                if(prd.color === selection && prd.id === product._id) {
+                    return prd;
+                }
+            })
+            if(match) {
+                match.qty+=qty;
+            } else {
+                cart.push(kanap);
+            }
+            
+            localStorage.setItem("cart", JSON.stringify(cart));
+        }
+    });
+}
+    
+
+
+
