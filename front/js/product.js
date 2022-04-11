@@ -65,23 +65,22 @@ function hydrateDescription(product) {  //permet d'hydrater le contenu de la pag
 
 // Ajout de l'évenement au clic du boutton "ajouter au panier"
 
-//fonction principale du script qui consiste à afficher les bonnes informations en fonction du produit cliqué sur la page d'accueil
-
 
 function addToCart(product) {
     
     const addToCartBtn = document.getElementById("addToCart");
 
     addToCartBtn.addEventListener('click', function(e) {
+
+        //Verif des données entrées par l'utilisateur
         let selection = document.getElementById("colors").value;
-        console.log(selection)
 
         if(selection === ""){
             alert("Veuillez séléctionner une couleur");
             return;
         }
-        let qty = parseInt(document.getElementById("quantity").value);
-        console.log(qty)
+
+        let qty = parseInt(document.getElementById("quantity").value); 
 
         if(qty < 1 || qty > 100){
             alert("Veuillez séléctionner une quantité entre 1 et 100");
@@ -89,18 +88,18 @@ function addToCart(product) {
         }
         
         const kanap = {
-        color: selection,
-        id: product._id,
-        qty,
+            color: selection,
+            id: product._id,
+            qty,
         };
 
-        let cart = JSON.parse(localStorage.getItem("cart"));
+        let cart = JSON.parse(localStorage.getItem("cart")); //permet de récupérer le panier
 
         if (!cart || !cart.length) {
             cart = [];
             cart.push(kanap);
             localStorage.setItem("cart", JSON.stringify(cart));
-        } else {
+        } else { //permet d'ajuster la quantité quand l'utilisateur ajoute le même produit dans le panier
             const match = cart.find((prd) => {
                 if(prd.color === selection && prd.id === product._id) {
                     return prd;
