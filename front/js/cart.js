@@ -15,10 +15,8 @@ function getCart() { //récupére le panier
 }
 
 function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pour l'utilisateur en fonction de son panier(localStorage)
-    for (let article of cartContent) {
-        const articleId = article.id;
-        const articleColor = article.color;
-        const articleQty = article.qty;
+    for (let i=0; i<cartContent.length; i++) {
+        const article= cartContent[i];
     
         fetch(`http://localhost:3000/api/products/${article.id}`) //ici, on récupére les infos à afficher qui n'étaient pas dans le localStorage (img, name, price...) 
             .then(function(res) {
@@ -33,6 +31,7 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 articleContainer.classList.add("cart__item");
                 articleContainer.setAttribute("data-id", article.id);
                 articleContainer.setAttribute("data-color", article.color);
+                
 
                 let imgContainer = document.createElement('div');
                 articleContainer.appendChild(imgContainer);
@@ -76,6 +75,7 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 articleQty.innerText = "Qté :";
 
                 let articleInputQty = document.createElement('input');
+                
                 articleContentSettingsQty.appendChild(articleInputQty);
                 articleInputQty.classList.add("itemQuantity");
                 articleInputQty.setAttribute("type", "number");
@@ -92,6 +92,67 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 articleDeleteContainer.appendChild(articleDeleteOption);
                 articleDeleteOption.classList.add("deleteItem");
                 articleDeleteOption.innerText = "Supprimer";
+
+                if (i===cartContent.length-1) {
+                    articleInputQty = document.getElementsByClassName('itemQuantity');
+                    totalQty(articleInputQty);
+                    articleDeleteOption = document.getElementsByClassName('deleteItem');
+                    deleteItem(articleDeleteOption);
+                }
             })
+    }
+}
+
+
+function totalQty(articleInputQty) {
+    let total = 0;
+    for (let i=0; i<articleInputQty.length; i++) {
+        const item = articleInputQty[i];
+        let inputValue = parseInt(item.value);
+    
+        total += inputValue;
+        totalQuantity.innerHTML = total;
+
+        item.addEventListener('change', function(e) {
+            let targetTheGoodProduct = item.closest('article');
+            let dataColor = targetTheGoodProduct.dataset.color;
+            let dataId = targetTheGoodProduct.dataset.id;
+
+            let cart = JSON.parse(localStorage.getItem("cart"))
+            const match = cart.find((prd) => { 
+                if(prd.color === dataColor && prd.id === dataId) {
+                    return prd;
+                }
+            })
+
+            if(match) {
+                match.qty = parseInt(e.target.value);
+            }
+        })
+    }
+}
+
+function deleteItem(articleDeleteOption) {
+
+    for (let i = 0; i < articleDeleteOption.length; i++) {
+        const btnDelete = articleDeleteOption[i];
+        
+        btnDelete.addEventListener('click', function(e) {
+            let targetTheGoodProduct = btnDelete.closest('article');
+            let dataColor = targetTheGoodProduct.dataset.color;
+            let dataId = targetTheGoodProduct.dataset.id;
+
+            let cart = JSON.parse(localStorage.getItem("cart"))
+            const match = cart.find((prd) => { 
+                console.log(match)
+                if(prd.color === dataColor && prd.id === dataId) {
+                    return prd;
+                }
+            })
+
+            if(match) {
+                match.qty = 0;
+            }
+        })
     }
 }
