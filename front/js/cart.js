@@ -98,18 +98,20 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                     totalQty(articleInputQty);
                     articleDeleteOption = document.getElementsByClassName('deleteItem');
                     deleteItem(articleDeleteOption);
+                    totalPriceResult(product);    
                 }
             })
     }
 }
 
 
-function totalQty(articleInputQty) {
+function totalQty(articleInputQty) { //affiche le bon total d'articles et s'actualise au changement de quantité ainsi que dans le localStorage
     let total = 0;
     for (let i=0; i<articleInputQty.length; i++) {
         const item = articleInputQty[i];
         let inputValue = parseInt(item.value);
     
+        
         total += inputValue;
         totalQuantity.innerHTML = total;
 
@@ -128,11 +130,16 @@ function totalQty(articleInputQty) {
             if(match) {
                 match.qty = parseInt(e.target.value);
             }
+            
+            localStorage.setItem("cart", JSON.stringify(cart));
+            window.location.reload();
         })
     }
 }
 
-function deleteItem(articleDeleteOption) {
+
+
+function deleteItem(articleDeleteOption) { //supprime le produit du localStorage et donc de la page
 
     for (let i = 0; i < articleDeleteOption.length; i++) {
         const btnDelete = articleDeleteOption[i];
@@ -144,15 +151,21 @@ function deleteItem(articleDeleteOption) {
 
             let cart = JSON.parse(localStorage.getItem("cart"))
             const match = cart.find((prd) => { 
-                console.log(match)
+                
                 if(prd.color === dataColor && prd.id === dataId) {
                     return prd;
+                    
                 }
             })
 
             if(match) {
-                match.qty = 0;
+                const indexKanap = cart.indexOf(match);
+                cart.splice(indexKanap, 1);
             }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            window.location.reload();
         })
     }
 }
+
