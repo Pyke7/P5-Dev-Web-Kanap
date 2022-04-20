@@ -1,5 +1,5 @@
 const cartReview = document.getElementById('cart__items'); //FAIT
-const totalQuantity = document.getElementById('totalQuantity'); 
+const totalQuantity = document.getElementById('totalQuantity'); //FAIT
 const totalPrice = document.getElementById('totalPrice');
 
 function mainProductRecap () {
@@ -97,8 +97,7 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                     articleInputQty = document.getElementsByClassName('itemQuantity');
                     totalQty(articleInputQty);
                     articleDeleteOption = document.getElementsByClassName('deleteItem');
-                    deleteItem(articleDeleteOption);
-                    totalPriceResult(product);    
+                    deleteItem(articleDeleteOption);  
                 }
             })
     }
@@ -169,3 +168,58 @@ function deleteItem(articleDeleteOption) { //supprime le produit du localStorage
     }
 }
 
+
+//VALIDATION DES DONNEES SAISIES DANS LE FORMULAIRE DE COMMANDE
+
+
+function validUserInfos() {
+    let myForm = document.getElementsByClassName("cart__order__form");
+    
+    myForm[0].addEventListener('submit', function(e) {
+        const firstName = document.getElementById('firstName');
+        let fullNameRegex = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
+
+        if (fullNameRegex.test(firstName.value) == false) {
+            const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
+            firstNameErrorMsg.innerHTML = "Le champ prénom contient des caractères non autorisés";
+            e.preventDefault();
+        }
+
+        const lastName = document.getElementById('lastName');
+
+        if (fullNameRegex.test(lastName.value) == false) {
+            const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
+            lastNameErrorMsg.innerHTML = "Le champ nom contient des caractères non autorisés";
+            e.preventDefault();
+        }    
+        
+        const address = document.getElementById('address');
+        let addressRegex = /^\s*\S+(?:\s+\S+){2}/;
+
+        if (addressRegex.test(address.value) == false) {
+            const addressErrorMsg = document.getElementById('addressErrorMsg');
+            addressErrorMsg.innerHTML = "Le champ adresse n'est pas valide"
+            e.preventDefault();
+        }
+
+        const city = document.getElementById('city');
+        let cityRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
+
+        if (cityRegex.test(city.value) == false) {
+            const cityErrorMsg = document.getElementById('cityErrorMsg');
+            cityErrorMsg.innerHTML = "Le champ ville n'est pas valide";
+            e.preventDefault();
+        }
+
+        const email = document.getElementById('email');
+        let emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b/;
+
+        if (emailRegex.test(email.value) == false) {
+            const emailErrorMsg = document.getElementById('emailErrorMsg');
+            emailErrorMsg.innerHTML = "Le champ email n'est pas valide"
+            e.preventDefault();
+        }
+    })
+}
+
+validUserInfos();
