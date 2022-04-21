@@ -171,11 +171,21 @@ function deleteItem(articleDeleteOption) { //supprime le produit du localStorage
 
 //VALIDATION DES DONNEES SAISIES DANS LE FORMULAIRE DE COMMANDE
 
+function order(){
+    validUserInfos();
+    const contactObject = buildContactObjectAndArrayOfProduct();
+    // requestPOST(contactObject);
+}
+
+order();
 
 function validUserInfos() {
     let myForm = document.getElementsByClassName("cart__order__form");
     
     myForm[0].addEventListener('submit', function(e) {
+
+        e.preventDefault();
+
         const firstName = document.getElementById('firstName');
         let fullNameRegex = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
 
@@ -205,7 +215,7 @@ function validUserInfos() {
         const city = document.getElementById('city');
         let cityRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
 
-        if (cityRegex.test(city.value) == false) {
+        if (cityRegex.test(city.value) == false) {  
             const cityErrorMsg = document.getElementById('cityErrorMsg');
             cityErrorMsg.innerHTML = "Le champ ville n'est pas valide";
             e.preventDefault();
@@ -218,8 +228,63 @@ function validUserInfos() {
             const emailErrorMsg = document.getElementById('emailErrorMsg');
             emailErrorMsg.innerHTML = "Le champ email n'est pas valide"
             e.preventDefault();
-        }
+        } 
+
     })
 }
 
-validUserInfos();
+
+
+
+
+function buildContactObjectAndArrayOfProduct() { //construit l'objet contact et le tableau de produits
+    const myForm = document.getElementsByClassName("cart__order__form");
+
+    myForm[0].addEventListener('submit', function(e) {
+
+        const data = {
+            
+            contact: {
+                firstName: firstName.value, //comment ca fonctionne ?
+                lastName: lastName.value,
+                address: address.value,
+                city: city.value,
+                email: email.value
+            },
+            products: []
+        }
+        // console.log(data.contact)
+        
+        let cart = JSON.parse(localStorage.getItem("cart"));
+        
+        for (i=0; i < cart.length; i++) {
+            let item = cart[i];
+            let itemId = item.id;
+            data.products.push(itemId);
+        }
+        // console.log(data.products);
+        // console.log(data);
+        
+        for (let contactInfos in data.contact) { //vérif type de données avant de faire la requête
+            let typeOfInfos = typeof data.contact[contactInfos];
+            // console.log(contactInfos + ": " + typeOfInfos);
+            if ( typeOfInfos !== "string") {
+                e.preventDefault();
+            } 
+        }
+    })
+
+    
+}
+
+// function requestPOST(data){
+//     console.log(data)
+//     fetch ("http://localhost:3000/api/products/order", {
+//         method: 'POST',
+//         headers: {
+//             'Accept': 'application/json',
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(data)
+//     });
+// }
