@@ -1,8 +1,4 @@
-const cartReview = document.getElementById('cart__items'); //FAIT
-const totalQuantity = document.getElementById('totalQuantity'); //FAIT
-const totalPrice = document.getElementById('totalPrice');
-
-function mainProductRecap () {
+function mainProductRecap () { // affiche tous les produits du panier de l'utilisateur
     const cartContent = getCart();
     travelAndInsertInfos (cartContent);
 }
@@ -15,16 +11,17 @@ function getCart() { //récupére le panier
 }
 
 function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pour l'utilisateur en fonction de son panier(localStorage)
+    const cartReview = document.getElementById('cart__items');
     for (let i=0; i<cartContent.length; i++) {
         const article= cartContent[i];
-    
+        
         fetch(`http://localhost:3000/api/products/${article.id}`) //ici, on récupére les infos à afficher qui n'étaient pas dans le localStorage (img, name, price...) 
             .then(function(res) {
                 if (res.ok) {
                     return res.json();
                 }
             })
-
+            
             .then(function(product) {
                 let articleContainer = document.createElement('article');
                 cartReview.appendChild(articleContainer);
@@ -32,16 +29,16 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 articleContainer.setAttribute("data-id", article.id);
                 articleContainer.setAttribute("data-color", article.color);
                 
-
+                
                 let imgContainer = document.createElement('div');
                 articleContainer.appendChild(imgContainer);
                 imgContainer.classList.add("cart__item__img");
-
+                
                 let img = document.createElement('img');
                 imgContainer.appendChild(img);
                 img.setAttribute("src", product.imageUrl);
                 img.setAttribute("alt", product.altTxt);
-
+                
                 let articleContent = document.createElement('div');
                 articleContainer.appendChild(articleContent);
                 articleContent.classList.add("cart__item__content");
@@ -49,23 +46,23 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 let articleContentDescription = document.createElement('div');
                 articleContent.appendChild(articleContentDescription);
                 articleContentDescription.classList.add("cart__item__content__description");
-
+                
                 let articleName = document.createElement('h2');
                 articleContentDescription.appendChild(articleName);
                 articleName.innerText = product.name;
-
+                
                 let articleColor = document.createElement('p');
                 articleContentDescription.appendChild(articleColor);
                 articleColor.innerText = article.color;
-
+                
                 let articlePrice = document.createElement('p');
                 articleContentDescription.appendChild(articlePrice);
                 articlePrice.innerText = product.price + "€";
-
+                
                 let articleContentSettings = document.createElement('div');
                 articleContent.appendChild(articleContentSettings);
                 articleContentSettings.classList.add("cart__item__content__settings");
-
+                
                 let articleContentSettingsQty = document.createElement('div');
                 articleContentSettings.appendChild(articleContentSettingsQty);
                 articleContentSettingsQty.classList.add("cart__item__content__settings__quantity");
@@ -73,7 +70,7 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 let articleQty = document.createElement('p');
                 articleContentSettingsQty.appendChild(articleQty);
                 articleQty.innerText = "Qté :";
-
+                
                 let articleInputQty = document.createElement('input');
                 
                 articleContentSettingsQty.appendChild(articleInputQty);
@@ -83,7 +80,7 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 articleInputQty.setAttribute("min", 1);
                 articleInputQty.setAttribute("max", 100);
                 articleInputQty.setAttribute("value", article.qty);
-
+                
                 let articleDeleteContainer = document.createElement('div');
                 articleContentSettings.appendChild(articleDeleteContainer);
                 articleDeleteContainer.classList.add("cart__item__content__settings__delete");
@@ -93,23 +90,29 @@ function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pou
                 articleDeleteOption.classList.add("deleteItem");
                 articleDeleteOption.innerText = "Supprimer";
 
-                if (i===cartContent.length-1) {
+                if (i===cartContent.length-1) { //évite les erreurs de code asynchrone
                     articleInputQty = document.getElementsByClassName('itemQuantity');
                     totalQty(articleInputQty);
                     articleDeleteOption = document.getElementsByClassName('deleteItem');
                     deleteItem(articleDeleteOption);  
-                }
+                    displayTotalPrice(articleInputQty);
+                }   
+            })
+            
+            .catch(function(error) {
+                alert('Erreur');
+                console.log('Il y a eu un problème avec l\'opération fetch: ' + error.message);
             })
     }
 }
 
-
 function totalQty(articleInputQty) { //affiche le bon total d'articles et s'actualise au changement de quantité ainsi que dans le localStorage
+    const totalQuantity = document.getElementById('totalQuantity');
     let total = 0;
     for (let i=0; i<articleInputQty.length; i++) {
         const item = articleInputQty[i];
         let inputValue = parseInt(item.value);
-    
+        
         
         total += inputValue;
         totalQuantity.innerHTML = total;
@@ -136,8 +139,6 @@ function totalQty(articleInputQty) { //affiche le bon total d'articles et s'actu
     }
 }
 
-
-
 function deleteItem(articleDeleteOption) { //supprime le produit du localStorage et donc de la page
 
     for (let i = 0; i < articleDeleteOption.length; i++) {
@@ -156,30 +157,66 @@ function deleteItem(articleDeleteOption) { //supprime le produit du localStorage
                     
                 }
             })
-
+            
             if(match) {
                 const indexKanap = cart.indexOf(match);
                 cart.splice(indexKanap, 1);
             }
-
+            
             localStorage.setItem("cart", JSON.stringify(cart));
             window.location.reload();
         })
     }
 }
 
+function displayTotalPrice() { //affiche le total de la commande
+    const totalPrice = document.getElementById('totalPrice');
+    let arrayPrice = [];
+    let cart = JSON.parse(localStorage.getItem("cart"));
 
-//VALIDATION DES DONNEES SAISIES DANS LE FORMULAIRE DE COMMANDE
+    for (i = 0; i < cart.length; i++) {
+        const item = cart[i];
 
-function order(){
+        let productId = item.id;
+        let productQty = item.qty;
+        
+        fetch(`http://localhost:3000/api/products/${productId}`)
+            .then(function(res) {
+                if(res.ok) {
+                    return res.json();
+                }
+            })
+
+            .then(function(data) {
+                let productPrice = data.price;
+
+                let totalPriceForThisProduct = productPrice * productQty;
+                arrayPrice.push(totalPriceForThisProduct);
+                
+                const reducer = (accumulator, curr) => accumulator + curr;
+                let sum = arrayPrice.reduce(reducer);
+                    
+                totalPrice.innerHTML = sum;
+            })
+                
+            .catch(function(error) {
+                alert('Erreur');
+                console.log('Il y a eu un problème avec l\'opération fetch: ' + error.message);
+            })      
+    }
+}   
+
+
+//---VALIDATION DES DONNEES SAISIES DANS LE FORMULAIRE DE COMMANDE ET ENVOI DE CELUI CI---
+
+function order(){ //fonction qui passe la commande en vérifiant d'abord la saisie de utilisateur
     validUserInfos();
-    const contactObject = buildContactObjectAndArrayOfProduct();
-    // requestPOST(contactObject);
+    requestOrder();
 }
 
 order();
 
-function validUserInfos() {
+function validUserInfos() { //valide les infos entrées par l'utilisateur grâce à des regEx
     let myForm = document.getElementsByClassName("cart__order__form");
     
     myForm[0].addEventListener('submit', function(e) {
@@ -228,21 +265,17 @@ function validUserInfos() {
             const emailErrorMsg = document.getElementById('emailErrorMsg');
             emailErrorMsg.innerHTML = "Le champ email n'est pas valide"
             e.preventDefault();
-        } 
-
+        }
     })
 }
 
 
-
-
-
-function buildContactObjectAndArrayOfProduct() { //construit l'objet contact et le tableau de produits
+function requestOrder() { //construit l'objet contact et le tableau de produits et envoie une requête POST à l'api
     const myForm = document.getElementsByClassName("cart__order__form");
 
     myForm[0].addEventListener('submit', function(e) {
 
-        const data = {
+        const data = { //objet à envoyé au back-end
             
             contact: {
                 firstName: firstName.value, //comment ca fonctionne ?
@@ -253,8 +286,7 @@ function buildContactObjectAndArrayOfProduct() { //construit l'objet contact et 
             },
             products: []
         }
-        // console.log(data.contact)
-        
+              
         let cart = JSON.parse(localStorage.getItem("cart"));
         
         for (i=0; i < cart.length; i++) {
@@ -262,8 +294,6 @@ function buildContactObjectAndArrayOfProduct() { //construit l'objet contact et 
             let itemId = item.id;
             data.products.push(itemId);
         }
-        // console.log(data.products);
-        // console.log(data);
         
         for (let contactInfos in data.contact) { //vérif type de données avant de faire la requête
             let typeOfInfos = typeof data.contact[contactInfos];
@@ -272,19 +302,35 @@ function buildContactObjectAndArrayOfProduct() { //construit l'objet contact et 
                 e.preventDefault();
             } 
         }
-    })
+        
+        //--------Requête POST envoyé au back-end--------
 
-    
+        const optionsOfRequest = {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        };
+        
+        
+        fetch ("http://localhost:3000/api/products/order", optionsOfRequest)
+            .then(function(res) {
+                if(res.ok) {
+                    return res.json();
+                }
+            })
+
+            .then(function(data) {
+                document.location.href = "confirmation.html?id=" + data.orderId;
+            })
+
+            .catch(function(error) {
+                alert('Erreur');
+                console.log('Il y a eu un problème avec l\'opération fetch: ' + error.message);
+            })    
+    })
 }
 
-// function requestPOST(data){
-//     console.log(data)
-//     fetch ("http://localhost:3000/api/products/order", {
-//         method: 'POST',
-//         headers: {
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(data)
-//     });
-// }
+

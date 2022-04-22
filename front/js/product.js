@@ -113,6 +113,8 @@ function addToCart(product) {
             
             localStorage.setItem("cart", JSON.stringify(cart));
         }
+
+        alert("Votre ou vos kanap(s) ont bien été ajouté(s) au panier"); //indique à l'utilisateur que l'ajout au panier à bien été effectué !
     });
 }
     
