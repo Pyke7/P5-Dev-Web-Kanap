@@ -4,6 +4,7 @@ function displayOrderId() {  //permet de récupérer l'id en parmètre de la pag
     
     const orderIdContainer = document.getElementById('orderId');
     orderIdContainer.innerHTML = id;
+    localStorage.clear();
 }
 
 displayOrderId();

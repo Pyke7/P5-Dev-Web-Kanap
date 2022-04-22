@@ -12,6 +12,11 @@ function getCart() { //récupére le panier
 
 function travelAndInsertInfos (cartContent) { //permet d'afficher du contenu pour l'utilisateur en fonction de son panier(localStorage)
     const cartReview = document.getElementById('cart__items');
+
+    if (!cartContent) {
+        return
+    }
+
     for (let i=0; i<cartContent.length; i++) {
         const article= cartContent[i];
         
@@ -113,7 +118,6 @@ function totalQty(articleInputQty) { //affiche le bon total d'articles et s'actu
         const item = articleInputQty[i];
         let inputValue = parseInt(item.value);
         
-        
         total += inputValue;
         totalQuantity.innerHTML = total;
 
@@ -209,71 +213,60 @@ function displayTotalPrice() { //affiche le total de la commande
 
 //---VALIDATION DES DONNEES SAISIES DANS LE FORMULAIRE DE COMMANDE ET ENVOI DE CELUI CI---
 
-function order(){ //fonction qui passe la commande en vérifiant d'abord la saisie de utilisateur
-    validUserInfos();
-    requestOrder();
-}
-
-order();
-
 function validUserInfos() { //valide les infos entrées par l'utilisateur grâce à des regEx
+    
     let myForm = document.getElementsByClassName("cart__order__form");
     
+    const firstName = document.getElementById('firstName');
+    const lastName = document.getElementById('lastName');
+    const address = document.getElementById('address');
+    const city = document.getElementById('city');
+    const email = document.getElementById('email');
+    
     myForm[0].addEventListener('submit', function(e) {
-
+        
         e.preventDefault();
-
-        const firstName = document.getElementById('firstName');
+        
         let fullNameRegex = /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
-
         if (fullNameRegex.test(firstName.value) == false) {
             const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
             firstNameErrorMsg.innerHTML = "Le champ prénom contient des caractères non autorisés";
-            e.preventDefault();
         }
-
-        const lastName = document.getElementById('lastName');
-
+        
         if (fullNameRegex.test(lastName.value) == false) {
             const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
             lastNameErrorMsg.innerHTML = "Le champ nom contient des caractères non autorisés";
-            e.preventDefault();
         }    
         
-        const address = document.getElementById('address');
         let addressRegex = /^\s*\S+(?:\s+\S+){2}/;
-
         if (addressRegex.test(address.value) == false) {
             const addressErrorMsg = document.getElementById('addressErrorMsg');
             addressErrorMsg.innerHTML = "Le champ adresse n'est pas valide"
-            e.preventDefault();
         }
 
-        const city = document.getElementById('city');
         let cityRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
-
         if (cityRegex.test(city.value) == false) {  
             const cityErrorMsg = document.getElementById('cityErrorMsg');
-            cityErrorMsg.innerHTML = "Le champ ville n'est pas valide";
-            e.preventDefault();
+            cityErrorMsg.innerHTML = "Le champ ville n'est pas valide"; 
         }
 
-        const email = document.getElementById('email');
         let emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b/;
-
         if (emailRegex.test(email.value) == false) {
             const emailErrorMsg = document.getElementById('emailErrorMsg');
             emailErrorMsg.innerHTML = "Le champ email n'est pas valide"
-            e.preventDefault();
+        }
+
+        if (fullNameRegex.test(firstName.value) && fullNameRegex.test(lastName.value) && addressRegex.test(address.value) && cityRegex.test(city.value) && emailRegex.test(email.value) && getCart().length) {
+            requestOrder();
         }
     })
+
 }
 
+validUserInfos();
 
 function requestOrder() { //construit l'objet contact et le tableau de produits et envoie une requête POST à l'api
     const myForm = document.getElementsByClassName("cart__order__form");
-
-    myForm[0].addEventListener('submit', function(e) {
 
         const data = { //objet à envoyé au back-end
             
@@ -330,7 +323,7 @@ function requestOrder() { //construit l'objet contact et le tableau de produits 
                 alert('Erreur');
                 console.log('Il y a eu un problème avec l\'opération fetch: ' + error.message);
             })    
-    })
+    
 }
 
 
