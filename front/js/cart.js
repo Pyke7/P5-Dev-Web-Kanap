@@ -120,24 +120,30 @@ function totalQty(articleInputQty) { //affiche le bon total d'articles et s'actu
         
         total += inputValue;
         totalQuantity.innerHTML = total;
-
+        
         item.addEventListener('change', function(e) {
+
+            if (e.target.value < 1 || e.target.value > 100) {
+                alert("Veuillez séléctionner une quantité entre 1 et 100");
+                return
+            }
+            
             let targetTheGoodProduct = item.closest('article');
             let dataColor = targetTheGoodProduct.dataset.color;
             let dataId = targetTheGoodProduct.dataset.id;
-
-            let cart = JSON.parse(localStorage.getItem("cart"))
+            
+            let cart = JSON.parse(localStorage.getItem("cart")); 
             const match = cart.find((prd) => { 
                 if(prd.color === dataColor && prd.id === dataId) {
                     return prd;
                 }
             })
-
+            
             if(match) {
                 match.qty = parseInt(e.target.value);
             }
-            
             localStorage.setItem("cart", JSON.stringify(cart));
+            console.log("valeur modifié");
             window.location.reload();
         })
     }
@@ -231,29 +237,39 @@ function validUserInfos() { //valide les infos entrées par l'utilisateur grâce
         if (fullNameRegex.test(firstName.value) == false) {
             const firstNameErrorMsg = document.getElementById('firstNameErrorMsg');
             firstNameErrorMsg.innerHTML = "Le champ prénom contient des caractères non autorisés";
+        } else {
+            firstNameErrorMsg.innerHTML = "";
         }
         
         if (fullNameRegex.test(lastName.value) == false) {
             const lastNameErrorMsg = document.getElementById('lastNameErrorMsg');
             lastNameErrorMsg.innerHTML = "Le champ nom contient des caractères non autorisés";
-        }    
+        } else {
+           lastNameErrorMsg.innerHTML = "";
+        }   
         
         let addressRegex = /^\s*\S+(?:\s+\S+){2}/;
         if (addressRegex.test(address.value) == false) {
             const addressErrorMsg = document.getElementById('addressErrorMsg');
             addressErrorMsg.innerHTML = "Le champ adresse n'est pas valide"
+        } else {
+            addressErrorMsg.innerHTML = "";
         }
 
         let cityRegex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/;
         if (cityRegex.test(city.value) == false) {  
             const cityErrorMsg = document.getElementById('cityErrorMsg');
             cityErrorMsg.innerHTML = "Le champ ville n'est pas valide"; 
+        } else {
+            cityErrorMsg.innerHTML = "";
         }
 
         let emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b/;
         if (emailRegex.test(email.value) == false) {
             const emailErrorMsg = document.getElementById('emailErrorMsg');
             emailErrorMsg.innerHTML = "Le champ email n'est pas valide"
+        } else {
+            emailErrorMsg.innerHTML = "";
         }
 
         if (fullNameRegex.test(firstName.value) && fullNameRegex.test(lastName.value) && addressRegex.test(address.value) && cityRegex.test(city.value) && emailRegex.test(email.value) && getCart().length) {
