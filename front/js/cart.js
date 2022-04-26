@@ -143,7 +143,6 @@ function totalQty(articleInputQty) { //affiche le bon total d'articles et s'actu
                 match.qty = parseInt(e.target.value);
             }
             localStorage.setItem("cart", JSON.stringify(cart));
-            console.log("valeur modifié");
             window.location.reload();
         })
     }
@@ -306,7 +305,6 @@ function requestOrder() { //construit l'objet contact et le tableau de produits 
         
         for (let contactInfos in data.contact) { //vérif type de données avant de faire la requête
             let typeOfInfos = typeof data.contact[contactInfos];
-            // console.log(contactInfos + ": " + typeOfInfos);
             if ( typeOfInfos !== "string") {
                 e.preventDefault();
             } 

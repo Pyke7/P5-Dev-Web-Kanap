@@ -1,4 +1,4 @@
-async function main(){//fonction principale du script qui consiste à afficher les bonnes informations en fonction du produit cliqué sur la page d'accueil
+async function main(){ //fonction principale du script qui consiste à afficher les bonnes informations en fonction du produit cliqué sur la page d'accueil
     const productId = getProductId();
     const product = await getProduct(productId);
     hydrateDescription(product);
@@ -12,7 +12,6 @@ function getProductId() {  //permet de récupérer l'id en parmètre de la page 
     let getId = currentURL.searchParams.get("id");
     return getId;
 }
-
 
 function getProduct(productId) {   //permet de récupérer le produit en question via son Id
     return fetch(`http://localhost:3000/api/products/${productId}`)
@@ -31,10 +30,6 @@ function getProduct(productId) {   //permet de récupérer le produit en questio
             console.log('Il y a eu un problème avec l\'opération fetch: ' + error.message);
         })
 }
-
-
-
-
 
 function hydrateDescription(product) {  //permet d'hydrater le contenu de la page en fonction de l'id du produit
     let imgContainer = document.getElementsByClassName('item__img');
@@ -61,12 +56,7 @@ function hydrateDescription(product) {  //permet d'hydrater le contenu de la pag
     }
 }
 
-
-
-// Ajout de l'évenement au clic du boutton "ajouter au panier"
-
-
-function addToCart(product) {
+function addToCart(product) { // Ajout de l'évenement au clic du boutton "ajouter au panier"
     
     const addToCartBtn = document.getElementById("addToCart");
 
